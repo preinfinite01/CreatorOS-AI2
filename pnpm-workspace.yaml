@@ -37,8 +37,6 @@ minimumReleaseAgeExclude:
 packages:
   - artifacts/*
   - lib/*
-  - lib/integrations-openai-ai-server
-  - lib/integrations-openai-ai-react
   - scripts
 
 catalog:

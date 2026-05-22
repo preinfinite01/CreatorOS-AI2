@@ -156,7 +156,7 @@ function Router() {
 
 function App() {
   const { setSession, setUser } = useAuthStore();
-  const { syncFromProfile } = useUserStore();
+  const { loadProfile } = useUserStore();
   const { loadSubscription, loadRates } = useSubscriptionStore();
 
   useEffect(() => {
@@ -168,16 +168,9 @@ function App() {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user?.id) {
-        loadSubscription(session.user.id).then(() => {
-          fetch(`/api/payments/subscription/${session.user.id}`)
-            .then((r) => r.json())
-            .then((json: { status: boolean; data?: { profile?: { plan?: string; credits?: number; xp?: number; level?: number; streak?: number } } }) => {
-              if (json.status && json.data?.profile) {
-                syncFromProfile(json.data.profile);
-              }
-            })
-            .catch(() => {});
-        });
+        // Load profile from API (triggers daily credit refresh if due)
+        loadProfile(session.user.id);
+        loadSubscription(session.user.id);
       }
     });
 
@@ -185,12 +178,13 @@ function App() {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user?.id) {
+        loadProfile(session.user.id);
         loadSubscription(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [setSession, setUser, loadSubscription, syncFromProfile]);
+  }, [setSession, setUser, loadSubscription, loadProfile]);
 
   return (
     <QueryClientProvider client={queryClient}>

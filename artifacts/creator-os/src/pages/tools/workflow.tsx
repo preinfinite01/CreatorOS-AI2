@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Copy, Save, Layout, Zap, Flame, Check, PenTool, Hash, RefreshCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { WorkflowInputPlatform } from "@workspace/api-client-react/src/generated/api.schemas";
+import { WorkflowInputPlatform } from "@workspace/api-client-react";
 
 export default function Workflow() {
   const search = useSearch();
@@ -44,13 +44,13 @@ export default function Workflow() {
     }
   }, [search]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!topic) {
       toast({ title: "Topic required", variant: "destructive" });
       return;
     }
     
-    if (!deductCredits(40)) {
+    if (!(await deductCredits(user?.id ?? '', 40))) {
       toast({ title: "Not enough credits", description: "Workflow generation costs 40 credits.", variant: "destructive" });
       return;
     }

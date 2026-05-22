@@ -17,6 +17,10 @@ export const profilesTable = pgTable("profiles", {
   onboardingCompleted: integer("onboarding_completed").notNull().default(0),
   preferredCurrency: text("preferred_currency").default("USD"),
   preferredCountry: text("preferred_country").default("US"),
+  // Credit refresh tracking — persisted so restarts don't cause re-grants
+  lastCreditRefreshDate: text("last_credit_refresh_date"),   // "YYYY-MM-DD"
+  creditsMonthYear: text("credits_month_year"),              // "YYYY-MM"
+  monthlyCreditsGranted: integer("monthly_credits_granted").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, Sparkles, Zap, Flame, TrendingUp, ChevronRight, Lightbulb } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { IdeaGeneratorInputPlatform, ContentIdea } from "@workspace/api-client-react/src/generated/api.schemas";
+import { IdeaGeneratorInputPlatform, ContentIdea } from "@workspace/api-client-react";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
 import { Link } from "wouter";
@@ -28,13 +28,13 @@ export default function Ideas() {
   
   const generateIdeas = useGenerateIdeas();
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!niche) {
       toast({ title: "Niche required", variant: "destructive" });
       return;
     }
     
-    if (!deductCredits(10)) {
+    if (!(await deductCredits(user?.id ?? '', 10))) {
       toast({ title: "Not enough credits", description: "Please upgrade your plan or wait for refill.", variant: "destructive" });
       return;
     }
@@ -189,7 +189,7 @@ export default function Ideas() {
                     </div>
                     
                     <div className="flex items-center gap-2 flex-wrap">
-                      {idea.tags.map((tag, idx) => (
+                      {idea.tags.map((tag: string, idx: number) => (
                         <span key={idx} className="text-xs px-2.5 py-1 rounded-md bg-white/5 text-muted-foreground border border-white/5">#{tag}</span>
                       ))}
                     </div>

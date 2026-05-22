@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
+import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ export default function ImageGen() {
   const [generationCount, setGenerationCount] = useState(0);
 
   const { deductCredits, addXp } = useUserStore();
+  const { user } = useAuthStore();
   const { triggerPostGenAd } = useAdTrigger();
   const { toast } = useToast();
 
@@ -54,7 +56,7 @@ export default function ImageGen() {
       toast({ title: "Prompt required", description: "Describe the image you want to generate.", variant: "destructive" });
       return;
     }
-    if (!deductCredits(15)) {
+    if (!(await deductCredits(user?.id ?? '', 15))) {
       toast({ title: "Not enough credits", description: "Upgrade your plan to continue generating.", variant: "destructive" });
       return;
     }

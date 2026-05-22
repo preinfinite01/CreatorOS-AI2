@@ -1,12 +1,19 @@
 {
-  "buildCommand": "pnpm --filter @workspace/api-server run build",
-  "outputDirectory": "artifacts/api-server/dist",
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.mjs" }
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["src/**"] }
+    }
+  ],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
   ],
   "functions": {
-    "api/index.mjs": {
-      "maxDuration": 30
+    "api/index.ts": {
+      "maxDuration": 30,
+      "memory": 512
     }
   },
   "env": {
@@ -14,6 +21,9 @@
     "GROQ_API_KEY": "@groq_api_key",
     "HUGGINGFACE_API_KEY": "@huggingface_api_key",
     "PAYSTACK_SECRET_KEY": "@paystack_secret_key",
-    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key"
+    "PAYSTACK_PUBLIC_KEY": "@paystack_public_key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key",
+    "VITE_SUPABASE_URL": "@vite_supabase_url",
+    "FRONTEND_URL": "@frontend_url"
   }
 }

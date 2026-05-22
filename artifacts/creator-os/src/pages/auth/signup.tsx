@@ -19,12 +19,12 @@ export default function Signup() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`
-      }
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+      },
     });
 
     if (error) {
@@ -33,9 +33,24 @@ export default function Signup() {
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      setLocation("/verify-email");
+      setIsLoading(false);
+      return;
     }
+
+    // Create the user's profile in our database with 100 initial credits
+    if (data.user) {
+      try {
+        await fetch("/api/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: data.user.id, email }),
+        });
+      } catch {
+        // Non-fatal — profile creation is idempotent, will retry on next login
+      }
+    }
+
+    setLocation("/verify-email");
     setIsLoading(false);
   };
 
@@ -44,10 +59,10 @@ export default function Signup() {
       <form onSubmit={handleSignup} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="creator@example.com" 
+          <Input
+            id="email"
+            type="email"
+            placeholder="creator@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -56,23 +71,30 @@ export default function Signup() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input 
-            id="password" 
-            type="password" 
+          <Input
+            id="password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             className="bg-background/50 border-white/10"
           />
         </div>
-        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white mt-6" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/90 text-white mt-6"
+          disabled={isLoading}
+        >
           {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
           Create Account
         </Button>
       </form>
-      
+
       <div className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account? <Link href="/login" className="text-primary hover:text-primary/80 font-medium">Sign in</Link>
+        Already have an account?{" "}
+        <Link href="/login" className="text-primary hover:text-primary/80 font-medium">
+          Sign in
+        </Link>
       </div>
     </AuthLayout>
   );

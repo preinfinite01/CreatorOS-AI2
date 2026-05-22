@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
+import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export default function Repurpose() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { deductCredits, addXp } = useUserStore();
+  const { user } = useAuthStore();
   const { triggerPostGenAd } = useAdTrigger();
   const { toast } = useToast();
 
@@ -52,7 +54,7 @@ export default function Repurpose() {
   const handleGenerate = async () => {
     if (!content.trim()) { toast({ title: "Content required", description: "Paste your original content to repurpose.", variant: "destructive" }); return; }
     if (targetPlatforms.length === 0) { toast({ title: "Select at least one target platform", variant: "destructive" }); return; }
-    if (!deductCredits(15)) { toast({ title: "Not enough credits", variant: "destructive" }); return; }
+    if (!(await deductCredits(user?.id ?? '', 15))) { toast({ title: "Not enough credits", variant: "destructive" }); return; }
     setIsLoading(true);
     setResults([]);
     try {

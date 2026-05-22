@@ -32,7 +32,7 @@ export default function Captions() {
       toast({ title: "Topic required", description: "Enter what your content is about.", variant: "destructive" });
       return;
     }
-    if (!deductCredits(5)) {
+    if (!(await deductCredits(user?.id ?? '', 5))) {
       toast({ title: "Not enough credits", description: "Upgrade your plan to continue.", variant: "destructive" });
       return;
     }

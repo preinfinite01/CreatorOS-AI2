@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
+import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,12 +31,13 @@ export default function BrandVoice() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { deductCredits, addXp } = useUserStore();
+  const { user } = useAuthStore();
   const { triggerPostGenAd } = useAdTrigger();
   const { toast } = useToast();
 
   const handleGenerate = async () => {
     if (!description.trim()) { toast({ title: "Description required", variant: "destructive" }); return; }
-    if (!deductCredits(10)) { toast({ title: "Not enough credits", variant: "destructive" }); return; }
+    if (!(await deductCredits(user?.id ?? '', 10))) { toast({ title: "Not enough credits", variant: "destructive" }); return; }
     setIsLoading(true);
     setResult(null);
     try {

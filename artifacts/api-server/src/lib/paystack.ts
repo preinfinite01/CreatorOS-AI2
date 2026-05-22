@@ -1,16 +1,15 @@
 import https from "https";
-
-const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY;
-
-if (!PAYSTACK_SECRET) {
-  console.warn("[Paystack] PAYSTACK_SECRET_KEY not set — payment routes disabled");
-}
+import { PAYSTACK_SECRET_KEY } from "./env.js";
 
 export function paystackRequest<T = unknown>(
   method: string,
   path: string,
-  body?: unknown
+  body?: unknown,
 ): Promise<T> {
+  if (!PAYSTACK_SECRET_KEY) {
+    return Promise.reject(new Error("PAYSTACK_SECRET_KEY is not configured"));
+  }
+
   return new Promise((resolve, reject) => {
     const data = body ? JSON.stringify(body) : undefined;
     const options: https.RequestOptions = {
@@ -19,7 +18,7 @@ export function paystackRequest<T = unknown>(
       path,
       method,
       headers: {
-        Authorization: `Bearer ${PAYSTACK_SECRET}`,
+        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
         "Content-Type": "application/json",
         ...(data ? { "Content-Length": Buffer.byteLength(data) } : {}),
       },
@@ -30,8 +29,7 @@ export function paystackRequest<T = unknown>(
       res.on("data", (chunk) => (raw += chunk));
       res.on("end", () => {
         try {
-          const parsed = JSON.parse(raw) as T;
-          resolve(parsed);
+          resolve(JSON.parse(raw) as T);
         } catch {
           reject(new Error(`Paystack parse error: ${raw}`));
         }

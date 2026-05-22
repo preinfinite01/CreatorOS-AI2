@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, Copy, Check, FileText, Zap } from "lucide-react";
-import { ScriptGeneratorInputPlatform, ScriptGeneratorInputDuration } from "@workspace/api-client-react/src/generated/api.schemas";
+import { ScriptGeneratorInputPlatform, ScriptGeneratorInputDuration } from "@workspace/api-client-react";
 
 export default function Scripts() {
   const [topic, setTopic] = useState("");
@@ -30,13 +30,13 @@ export default function Scripts() {
   
   const generateScript = useGenerateScript();
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!topic) {
       toast({ title: "Topic required", variant: "destructive" });
       return;
     }
     
-    if (!deductCredits(20)) {
+    if (!(await deductCredits(user?.id ?? '', 20))) {
       toast({ title: "Not enough credits", description: "Script generation costs 20 credits.", variant: "destructive" });
       return;
     }

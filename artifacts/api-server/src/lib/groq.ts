@@ -1,14 +1,8 @@
 import OpenAI from "openai";
-import { logger } from "./logger.js";
-
-if (!process.env.GROQ_API_KEY) {
-  logger.warn(
-    "GROQ_API_KEY is not set. AI generation endpoints will return errors until it is configured.",
-  );
-}
+import { GROQ_API_KEY } from "./env.js";
 
 export const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY ?? "missing",
+  apiKey: GROQ_API_KEY ?? "missing",
   baseURL: "https://api.groq.com/openai/v1",
 });
 

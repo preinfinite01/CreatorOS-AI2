@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Copy, Save, Sparkles, Check, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { HookGeneratorInputPlatform } from "@workspace/api-client-react/src/generated/api.schemas";
+import { HookGeneratorInputPlatform } from "@workspace/api-client-react";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
 
@@ -28,13 +28,13 @@ export default function Hooks() {
   
   const generateHooks = useGenerateHooks();
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!topic) {
       toast({ title: "Topic required", variant: "destructive" });
       return;
     }
     
-    if (!deductCredits(5)) {
+    if (!(await deductCredits(user?.id ?? '', 5))) {
       toast({ title: "Not enough credits", description: "Please upgrade your plan or wait for refill.", variant: "destructive" });
       return;
     }

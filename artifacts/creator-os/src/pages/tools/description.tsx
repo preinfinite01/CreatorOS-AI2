@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
+import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,12 +22,13 @@ export default function Description() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { deductCredits, addXp } = useUserStore();
+  const { user } = useAuthStore();
   const { triggerPostGenAd } = useAdTrigger();
   const { toast } = useToast();
 
   const handleGenerate = async () => {
     if (!title.trim()) { toast({ title: "Video title required", variant: "destructive" }); return; }
-    if (!deductCredits(5)) { toast({ title: "Not enough credits", variant: "destructive" }); return; }
+    if (!(await deductCredits(user?.id ?? '', 5))) { toast({ title: "Not enough credits", variant: "destructive" }); return; }
     setIsLoading(true);
     setResult(null);
     try {
