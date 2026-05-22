@@ -1,0 +1,19 @@
+{
+  "buildCommand": "pnpm --filter @workspace/api-server run build",
+  "outputDirectory": "artifacts/api-server/dist",
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.mjs" }
+  ],
+  "functions": {
+    "api/index.mjs": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "GROQ_API_KEY": "@groq_api_key",
+    "HUGGINGFACE_API_KEY": "@huggingface_api_key",
+    "PAYSTACK_SECRET_KEY": "@paystack_secret_key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key"
+  }
+}
