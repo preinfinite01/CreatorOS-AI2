@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
+import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +41,7 @@ export default function AdCopy() {
     setIsLoading(true);
     setResults([]);
     try {
-      const res = await fetch("/api/ai/generate-adcopy", {
+      const res = await apiFetch("/api/ai/generate-adcopy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product, audience, platform, goal, tone, count: 3 }),

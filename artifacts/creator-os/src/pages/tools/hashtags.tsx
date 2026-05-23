@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
+import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +37,7 @@ export default function Hashtags() {
     setIsLoading(true);
     setResult(null);
     try {
-      const res = await fetch("/api/ai/generate-hashtags", {
+      const res = await apiFetch("/api/ai/generate-hashtags", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic, platform, niche, count: 30 }),

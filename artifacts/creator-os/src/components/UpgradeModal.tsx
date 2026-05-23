@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useSubscriptionStore, CURRENCY_SYMBOLS, type SupportedCurrency } from '@/store/subscriptionStore'
 import { useToast } from '@/hooks/use-toast'
 import { Link } from 'wouter'
+import { apiFetch } from '@/lib/api'
 
 const PLANS = [
   {
@@ -49,7 +50,7 @@ export function UpgradeModal({ open, onOpenChange }: { open: boolean; onOpenChan
 
     setProcessingPlan(planKey)
     try {
-      const res = await fetch('/api/payments/initialize', {
+      const res = await apiFetch('/api/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

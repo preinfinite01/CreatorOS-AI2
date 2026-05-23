@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
+import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -69,7 +70,7 @@ export default function ImageGen() {
     }, 3000);
 
     try {
-      const res = await fetch("/api/image", {
+      const res = await apiFetch("/api/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, style, aspectRatio }),

@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { CurrencySelector } from "@/components/CurrencySelector";
+import { apiFetch } from "@/lib/api";
 
 type Tab = "account" | "billing" | "integrations";
 
@@ -40,7 +41,7 @@ export default function Settings() {
     if (!user?.id) return;
     setCancelling(true);
     try {
-      const res = await fetch("/api/payments/cancel", {
+      const res = await apiFetch("/api/payments/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id }),

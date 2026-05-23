@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { apiFetch } from '@/lib/api'
 
 export type SupportedCurrency = 'USD' | 'NGN' | 'GHS' | 'ZAR' | 'KES' | 'GBP' | 'CAD' | 'EUR'
 
@@ -62,7 +63,6 @@ interface SubscriptionState {
   loadSubscription: (userId: string) => Promise<void>
 }
 
-const API_BASE = import.meta.env.VITE_API_URL ?? '/api'
 
 export const useSubscriptionStore = create<SubscriptionState>()(
   persist(
@@ -102,7 +102,7 @@ export const useSubscriptionStore = create<SubscriptionState>()(
 
         set({ isLoadingRates: true })
         try {
-          const res = await fetch(`${API_BASE}/payments/rates`)
+          const res = await apiFetch(`/api/payments/rates`)
           if (res.ok) {
             const json = (await res.json()) as { status: boolean; data: { rates: ExchangeRates } }
             if (json.status) set({ rates: json.data.rates, ratesLoadedAt: Date.now() })
@@ -115,7 +115,7 @@ export const useSubscriptionStore = create<SubscriptionState>()(
       loadSubscription: async (userId: string) => {
         set({ isLoadingSubscription: true })
         try {
-          const res = await fetch(`${API_BASE}/payments/subscription/${userId}`)
+          const res = await apiFetch(`/api/payments/subscription/${userId}`)
           if (res.ok) {
             const json = (await res.json()) as {
               status: boolean

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { apiFetch } from '@/lib/api'
 
 export type Plan = 'free' | 'basic' | 'pro'
 
@@ -58,7 +59,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
     set({ isDeducting: true })
     try {
-      const res = await fetch(`/api/profile/${userId}/deduct`, {
+      const res = await apiFetch(`/api/profile/${userId}/deduct`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount }),
@@ -97,7 +98,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   loadProfile: async (userId: string) => {
     set({ isLoadingProfile: true })
     try {
-      const res = await fetch(`/api/profile/${userId}`)
+      const res = await apiFetch(`/api/profile/${userId}`)
       if (!res.ok) {
         // Profile might not exist yet (first login) — try creating it
         set({ isLoadingProfile: false })

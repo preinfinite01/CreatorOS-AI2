@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useSubscriptionStore, CURRENCY_SYMBOLS, type SupportedCurrency } from '@/store/subscriptionStore'
 import { useAuthStore } from '@/store/authStore'
+import { apiFetch } from '@/lib/api'
 
 const CURRENCIES: { code: SupportedCurrency; flag: string; label: string }[] = [
   { code: 'USD', flag: '🇺🇸', label: 'USD — US Dollar' },
@@ -26,7 +27,7 @@ export function CurrencySelector() {
     setOpen(false)
     if (user?.id) {
       try {
-        await fetch('/api/payments/update-currency', {
+        await apiFetch('/api/payments/update-currency', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, currency: code, country }),

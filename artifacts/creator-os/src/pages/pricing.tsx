@@ -8,6 +8,7 @@ import { useSubscriptionStore, CURRENCY_SYMBOLS, type SupportedCurrency } from '
 import { Link, useLocation } from 'wouter'
 import { CurrencySelector } from '@/components/CurrencySelector'
 import { useToast } from '@/hooks/use-toast'
+import { apiFetch } from '@/lib/api'
 
 const PLANS = [
   {
@@ -109,7 +110,7 @@ export default function Pricing() {
 
     setProcessingPlan(plan.key)
     try {
-      const res = await fetch('/api/payments/initialize', {
+      const res = await apiFetch('/api/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

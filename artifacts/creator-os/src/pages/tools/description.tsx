@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
+import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +33,7 @@ export default function Description() {
     setIsLoading(true);
     setResult(null);
     try {
-      const res = await fetch("/api/ai/generate-description", {
+      const res = await apiFetch("/api/ai/generate-description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, topic, niche, keywords }),

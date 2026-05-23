@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -40,7 +41,7 @@ export default function Signup() {
     // Create the user's profile in our database with 100 initial credits
     if (data.user) {
       try {
-        await fetch("/api/profile", {
+        await apiFetch("/api/profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: data.user.id, email }),

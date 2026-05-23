@@ -4,6 +4,7 @@ import { Globe, ChevronDown, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSubscriptionStore, CURRENCY_SYMBOLS, COUNTRY_TO_CURRENCY, type SupportedCurrency } from '@/store/subscriptionStore'
 import { useAuthStore } from '@/store/authStore'
+import { apiFetch } from '@/lib/api'
 
 const COUNTRY_NAMES: Record<string, string> = {
   NG: 'Nigeria', GH: 'Ghana', ZA: 'South Africa', KE: 'Kenya',
@@ -59,7 +60,7 @@ export function CountryDetector() {
 
     if (user?.id) {
       try {
-        await fetch('/api/payments/update-currency', {
+        await apiFetch('/api/payments/update-currency', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, currency: selectedCurrency, country: detectedCountry }),

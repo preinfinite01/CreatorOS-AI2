@@ -8,9 +8,10 @@ import { FRONTEND_URL, NODE_ENV } from "./lib/env.js";
 
 const app: Express = express();
 
-// CORS — allow the frontend origin in all environments
+// CORS — support comma-separated FRONTEND_URL for multiple Vercel deployments
+// e.g. FRONTEND_URL=https://my-app.vercel.app,https://my-app-git-main.vercel.app
 const allowedOrigins = [
-  FRONTEND_URL,
+  ...(FRONTEND_URL ? FRONTEND_URL.split(",").map((u) => u.trim()).filter(Boolean) : []),
   "http://localhost:3000",
   "http://localhost:5173",
   "http://localhost:18152",
@@ -23,7 +24,11 @@ app.use(
       if (!origin) return cb(null, true);
       // In development allow everything
       if (NODE_ENV !== "production") return cb(null, true);
+      // Exact match against configured origins
       if (allowedOrigins.includes(origin)) return cb(null, true);
+      // Allow all Vercel preview deployments (*.vercel.app) as a safety net
+      if (origin.endsWith(".vercel.app")) return cb(null, true);
+      logger.warn({ origin }, "CORS blocked request");
       cb(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { useAuthStore } from "@/store/authStore";
 import { useAdTrigger } from "@/hooks/useAdTrigger";
+import { apiFetch } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +40,7 @@ export default function Captions() {
     setIsLoading(true);
     setResults([]);
     try {
-      const res = await fetch("/api/ai/generate-captions", {
+      const res = await apiFetch("/api/ai/generate-captions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic, niche, platform, tone, count: 4 }),

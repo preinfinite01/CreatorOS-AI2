@@ -3,7 +3,7 @@
   "buildCommand": "pnpm --filter @workspace/creator-os run build",
   "outputDirectory": "artifacts/creator-os/dist",
   "rewrites": [
-    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -16,6 +16,7 @@
   "env": {
     "VITE_SUPABASE_URL": "@vite_supabase_url",
     "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key",
-    "VITE_PAYSTACK_PUBLIC_KEY": "@vite_paystack_public_key"
+    "VITE_PAYSTACK_PUBLIC_KEY": "@vite_paystack_public_key",
+    "VITE_API_URL": "@vite_api_url"
   }
 }
