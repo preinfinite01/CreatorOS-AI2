@@ -1,7 +1,9 @@
 {
   "version": 2,
   "buildCommand": "pnpm --filter @workspace/creator-os run build",
-  "outputDirectory": "artifacts/creator-os/dist",
+  "outputDirectory": "dist",
+  "installCommand": "pnpm install",
+  "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
