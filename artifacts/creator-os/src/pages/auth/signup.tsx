@@ -38,7 +38,6 @@ export default function Signup() {
       return;
     }
 
-    // Create the user's profile in our database with 100 initial credits
     if (data.user) {
       try {
         await apiFetch("/api/profile", {
@@ -51,7 +50,8 @@ export default function Signup() {
       }
     }
 
-    setLocation("/verify-email");
+    // Pass email via state so verify-email page can offer resend
+    setLocation(`/verify-email?email=${encodeURIComponent(email)}`);
     setIsLoading(false);
   };
 
@@ -78,6 +78,7 @@ export default function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            minLength={8}
             className="bg-background/50 border-white/10"
           />
         </div>

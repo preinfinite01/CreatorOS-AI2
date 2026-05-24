@@ -19,6 +19,8 @@ import Landing from "@/pages/landing";
 import Login from "@/pages/auth/login";
 import Signup from "@/pages/auth/signup";
 import VerifyEmail from "@/pages/auth/verify-email";
+import ForgotPassword from "@/pages/auth/forgot-password";
+import ResetPassword from "@/pages/auth/reset-password";
 import NotFound from "@/pages/not-found";
 
 // Lazily loaded (post-login routes)
@@ -87,6 +89,8 @@ function Router() {
         <Route path="/login" component={Login} />
         <Route path="/signup" component={Signup} />
         <Route path="/verify-email" component={VerifyEmail} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password" component={ResetPassword} />
         <Route path="/pricing"><Suspense fallback={<PageLoader />}><Pricing /></Suspense></Route>
         <Route path="/payment/success"><Suspense fallback={<PageLoader />}><PaymentSuccess /></Suspense></Route>
         <Route path="/terms"><Suspense fallback={<PageLoader />}><Terms /></Suspense></Route>
