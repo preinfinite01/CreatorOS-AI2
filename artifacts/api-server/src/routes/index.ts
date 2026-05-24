@@ -5,6 +5,7 @@ import openaiConversationsRouter from "./openai-conversations";
 import paystackRouter from "./paystack";
 import imageRouter from "./image";
 import profileRouter from "./profile";
+import videoRouter from "./video";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(aiToolsRouter);
 router.use(openaiConversationsRouter);
 router.use(paystackRouter);
 router.use(imageRouter);
+router.use(videoRouter);
 
 export default router;

@@ -10,7 +10,7 @@ import {
   LayoutDashboard, Sparkles, FolderOpen, Settings,
   Zap, Flame, Menu, Crown, ChevronRight, TrendingUp,
   Image, Hash, MessageSquare, Wand2, FileText, Repeat2, Target,
-  LogOut, Star
+  LogOut, Star, QrCode, BarChart2, Volume2, Video, RefreshCw, Globe, BookOpen, Palette
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -22,15 +22,24 @@ const NAV_PRIMARY = [
 
 const NAV_TOOLS = [
   { icon: Sparkles, label: "All Tools", href: "/tools" },
+  { icon: Target, label: "Workflow", href: "/tools/workflow" },
   { icon: Wand2, label: "Titles", href: "/tools/titles" },
   { icon: Zap, label: "Hooks", href: "/tools/hooks" },
   { icon: FileText, label: "Scripts", href: "/tools/script" },
   { icon: TrendingUp, label: "Ideas", href: "/tools/ideas" },
+  { icon: BookOpen, label: "Blog", href: "/tools/blog" },
+  { icon: RefreshCw, label: "Rewriter", href: "/tools/rewriter" },
   { icon: MessageSquare, label: "Captions", href: "/tools/captions" },
   { icon: Hash, label: "Hashtags", href: "/tools/hashtags" },
+  { icon: Globe, label: "SEO Meta", href: "/tools/seo-meta" },
+  { icon: TrendingUp, label: "Trends", href: "/tools/trends" },
   { icon: Image, label: "Image AI", href: "/tools/image" },
   { icon: Repeat2, label: "Repurpose", href: "/tools/repurpose" },
-  { icon: Target, label: "Workflow", href: "/tools/workflow" },
+  { icon: Palette, label: "Colors", href: "/tools/color-palette" },
+  { icon: QrCode, label: "QR Code", href: "/tools/qr-code" },
+  { icon: BarChart2, label: "Engagement", href: "/tools/engagement" },
+  { icon: Volume2, label: "Text-to-Speech", href: "/tools/tts" },
+  { icon: Video, label: "Video AI", href: "/tools/video-gen" },
 ];
 
 export function AppLayout({ children }: { children: ReactNode }) {

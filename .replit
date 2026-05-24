@@ -34,3 +34,13 @@ externalPort = 80
 [[ports]]
 localPort = 18152
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+FRONTEND_URL = "https://creatoros-ai2.onrender.com"
+VITE_ADSENSE_CLIENT = "ca-pub-3003835262135716"
+VITE_ADSENSE_SLOT = "8538776664"
+VITE_ADSENSE_PUBLISHER_ID = "ca-pub-3003835262135716"
+VITE_ADSENSE_SLOT_BANNER = "8538776664"
+VITE_ADSENSE_SLOT_MODAL = "8538776664"

@@ -37,6 +37,15 @@ const Thumbnail = lazy(() => import("@/pages/tools/thumbnail"));
 const Description = lazy(() => import("@/pages/tools/description"));
 const AdCopy = lazy(() => import("@/pages/tools/adcopy"));
 const BrandVoice = lazy(() => import("@/pages/tools/brand-voice"));
+const BlogGenerator = lazy(() => import("@/pages/tools/blog"));
+const SeoMeta = lazy(() => import("@/pages/tools/seo-meta"));
+const Rewriter = lazy(() => import("@/pages/tools/rewriter"));
+const Trends = lazy(() => import("@/pages/tools/trends"));
+const QRCode = lazy(() => import("@/pages/tools/qr-code"));
+const ColorPalette = lazy(() => import("@/pages/tools/color-palette"));
+const Engagement = lazy(() => import("@/pages/tools/engagement"));
+const TTS = lazy(() => import("@/pages/tools/tts"));
+const VideoGen = lazy(() => import("@/pages/tools/video-gen"));
 const Projects = lazy(() => import("@/pages/projects"));
 const Settings = lazy(() => import("@/pages/settings"));
 const Onboarding = lazy(() => import("@/pages/onboarding"));
@@ -138,6 +147,33 @@ function Router() {
         </Route>
         <Route path="/tools/brand-voice">
           <ProtectedRoute><Suspense fallback={<PageLoader />}><BrandVoice /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/blog">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><BlogGenerator /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/seo-meta">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><SeoMeta /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/rewriter">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><Rewriter /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/trends">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><Trends /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/qr-code">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><QRCode /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/color-palette">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><ColorPalette /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/engagement">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><Engagement /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/tts">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><TTS /></Suspense></ProtectedRoute>
+        </Route>
+        <Route path="/tools/video-gen">
+          <ProtectedRoute><Suspense fallback={<PageLoader />}><VideoGen /></Suspense></ProtectedRoute>
         </Route>
 
         {/* Other Protected */}

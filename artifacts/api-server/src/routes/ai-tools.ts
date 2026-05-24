@@ -412,4 +412,151 @@ router.post("/ai/generate-captions", aiGenerationLimiter, async (req, res) => {
   }
 });
 
+// ── Blog Post Generator ───────────────────────────────────────
+router.post("/ai/generate-blog", aiGenerationLimiter, async (req, res) => {
+  const { topic, tone = "informative", length = "medium" } = req.body as { topic?: string; tone?: string; length?: string };
+  if (!topic) { res.status(400).json({ error: "topic required" }); return; }
+  const wordCount = length === "short" ? "400-600" : length === "long" ? "1200-1600" : "800-1100";
+  try {
+    const completion = await openai.chat.completions.create({
+      model: GROQ_MODEL,
+      max_tokens: 2000,
+      messages: [
+        { role: "system", content: `You are an expert blog writer. Write SEO-optimized, engaging blog posts in a ${tone} tone. Use clear H2 sections (prefix with ##). Make it compelling, well-structured, and highly readable.` },
+        { role: "user", content: `Write a complete blog post about: "${topic}". Target ${wordCount} words. Include: an engaging intro, 4-5 sections with ## headings, actionable tips, and a conclusion. Return JSON: {"title": "...", "content": "full post with ## headings..."}` },
+      ],
+    });
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    let result = { title: topic, content: "" };
+    try { result = JSON.parse(raw); } catch { result = { title: topic, content: raw }; }
+    res.json(result);
+  } catch (err) {
+    req.log.error({ err }, "Error generating blog");
+    res.status(500).json({ error: "Failed to generate blog post." });
+  }
+});
+
+// ── SEO Meta Generator ────────────────────────────────────────
+router.post("/ai/generate-seo-meta", aiGenerationLimiter, async (req, res) => {
+  const { topic, url } = req.body as { topic?: string; url?: string };
+  if (!topic) { res.status(400).json({ error: "topic required" }); return; }
+  try {
+    const completion = await openai.chat.completions.create({
+      model: GROQ_MODEL,
+      max_tokens: 1000,
+      messages: [
+        { role: "system", content: "You are an SEO expert. Generate optimized title tags (50-60 chars), meta descriptions (150-160 chars), URL slugs, and keyword lists. Return only valid JSON." },
+        { role: "user", content: `Generate 3 SEO meta variants for this page:\nTopic: ${topic}${url ? `\nURL: ${url}` : ""}\n\nReturn JSON: {"results": [{"title":"...","description":"...","keywords":["k1","k2","k3","k4","k5"],"slug":"..."},...]}` },
+      ],
+    });
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    let parsed: { results?: unknown[] } = {};
+    try { parsed = JSON.parse(raw); } catch { parsed = { results: [] }; }
+    res.json(parsed);
+  } catch (err) {
+    req.log.error({ err }, "Error generating SEO meta");
+    res.status(500).json({ error: "Failed to generate SEO metadata." });
+  }
+});
+
+// ── Content Rewriter ──────────────────────────────────────────
+router.post("/ai/rewrite-content", aiGenerationLimiter, async (req, res) => {
+  const { content, style = "professional" } = req.body as { content?: string; style?: string };
+  if (!content) { res.status(400).json({ error: "content required" }); return; }
+  try {
+    const completion = await openai.chat.completions.create({
+      model: GROQ_MODEL,
+      max_tokens: 1500,
+      messages: [
+        { role: "system", content: `You are an expert editor. Rewrite content in a ${style} style while preserving the core meaning. Produce 3 distinct variants. Return only valid JSON.` },
+        { role: "user", content: `Rewrite this content in ${style} style:\n\n"${content}"\n\nReturn JSON: {"variants": ["variant1", "variant2", "variant3"]}` },
+      ],
+    });
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    let parsed: { variants?: string[] } = {};
+    try { parsed = JSON.parse(raw); } catch { parsed = { variants: [raw] }; }
+    res.json(parsed);
+  } catch (err) {
+    req.log.error({ err }, "Error rewriting content");
+    res.status(500).json({ error: "Failed to rewrite content." });
+  }
+});
+
+// ── Niche Trend Detector ──────────────────────────────────────
+router.post("/ai/detect-trends", aiGenerationLimiter, async (req, res) => {
+  const { niche, platform = "youtube" } = req.body as { niche?: string; platform?: string };
+  if (!niche) { res.status(400).json({ error: "niche required" }); return; }
+  try {
+    const completion = await openai.chat.completions.create({
+      model: GROQ_MODEL,
+      max_tokens: 1500,
+      messages: [
+        { role: "system", content: `You are a content trend analyst with deep knowledge of ${platform} algorithm patterns and creator economy trends. Identify specific, actionable trends in any niche. Return only valid JSON.` },
+        { role: "user", content: `Identify 5 trending topics in the "${niche}" niche on ${platform} right now.\n\nFor each trend return:\n- topic: specific trend name\n- potential: one of "🔥 Viral", "📈 Rising", "💡 Emerging"\n- reasoning: why this is trending (2-3 sentences)\n- contentIdeas: array of 3 specific video/post ideas\n\nReturn JSON: {"trends": [...]}` },
+      ],
+    });
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    let parsed: { trends?: unknown[] } = {};
+    try { parsed = JSON.parse(raw); } catch { parsed = { trends: [] }; }
+    res.json(parsed);
+  } catch (err) {
+    req.log.error({ err }, "Error detecting trends");
+    res.status(500).json({ error: "Failed to detect trends." });
+  }
+});
+
+// ── Color Palette Generator ───────────────────────────────────
+router.post("/ai/generate-color-palette", aiGenerationLimiter, async (req, res) => {
+  const { prompt } = req.body as { prompt?: string };
+  if (!prompt) { res.status(400).json({ error: "prompt required" }); return; }
+  try {
+    const completion = await openai.chat.completions.create({
+      model: GROQ_MODEL,
+      max_tokens: 1000,
+      messages: [
+        { role: "system", content: "You are a professional brand designer. Generate beautiful, cohesive color palettes with hex codes. Return only valid JSON." },
+        { role: "user", content: `Generate 3 color palettes for: "${prompt}"\n\nEach palette has 5 colors. Return JSON:\n{"palettes": [{"name": "Palette Name", "mood": "mood description", "colors": [{"hex": "#XXXXXX", "name": "Color Name", "usage": "primary/accent/background/etc"},...]},...]}` },
+      ],
+    });
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    let parsed: { palettes?: unknown[] } = {};
+    try { parsed = JSON.parse(raw); } catch { parsed = { palettes: [] }; }
+    res.json(parsed);
+  } catch (err) {
+    req.log.error({ err }, "Error generating color palette");
+    res.status(500).json({ error: "Failed to generate color palette." });
+  }
+});
+
+// ── Text-to-Speech (HuggingFace) ──────────────────────────────
+router.post("/ai/tts", async (req, res) => {
+  const { text, voice = "en_US-amy-medium" } = req.body as { text?: string; voice?: string };
+  if (!text) { res.status(400).json({ error: "text required" }); return; }
+  const HF_KEY = process.env["HUGGINGFACE_API_KEY"];
+  if (!HF_KEY) { res.status(401).json({ error: "HuggingFace API key not configured." }); return; }
+  try {
+    const hfRes = await fetch(
+      `https://api-inference.huggingface.co/models/facebook/mms-tts-eng`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${HF_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ inputs: text }),
+      }
+    );
+    if (!hfRes.ok) {
+      const errText = await hfRes.text();
+      req.log.error({ status: hfRes.status, errText }, "HuggingFace TTS error");
+      res.status(502).json({ error: "TTS generation failed. The model may be loading — try again in 30s." });
+      return;
+    }
+    const audioBuffer = await hfRes.arrayBuffer();
+    res.set("Content-Type", "audio/flac");
+    res.set("Content-Disposition", `attachment; filename="tts-${Date.now()}.flac"`);
+    res.send(Buffer.from(audioBuffer));
+  } catch (err) {
+    req.log.error({ err }, "Error generating TTS");
+    res.status(500).json({ error: "Failed to generate speech." });
+  }
+});
+
 export default router;
