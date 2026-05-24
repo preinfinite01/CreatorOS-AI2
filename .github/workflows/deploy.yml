@@ -13,6 +13,7 @@ jobs:
   deploy-frontend:
     name: Deploy Frontend (CreatorOS AI)
     runs-on: ubuntu-latest
+    environment: Vercel deployment
     steps:
       - name: Checkout
         uses: actions/checkout@v4
