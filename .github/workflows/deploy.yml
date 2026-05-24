@@ -61,6 +61,22 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
 
+      - name: Smoke test frontend
+        run: |
+          url="${{ steps.deploy.outputs.url }}"
+          echo "Checking frontend at $url"
+          for i in 1 2 3 4 5; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$url")
+            echo "Attempt $i: HTTP $status"
+            if [ "$status" = "200" ]; then
+              echo "Frontend smoke test passed."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Frontend smoke test FAILED — last HTTP status: $status"
+          exit 1
+
   deploy-api:
     name: Deploy API Server
     runs-on: ubuntu-latest
@@ -111,3 +127,20 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_API }}
+
+      - name: Smoke test API health check
+        run: |
+          url="${{ steps.deploy.outputs.url }}/api/healthz"
+          echo "Checking API health at $url"
+          for i in 1 2 3 4 5; do
+            response=$(curl -s --max-time 15 "$url")
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$url")
+            echo "Attempt $i: HTTP $status — $response"
+            if [ "$status" = "200" ]; then
+              echo "API smoke test passed."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "API smoke test FAILED — last HTTP status: $status"
+          exit 1
