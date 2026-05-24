@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "pnpm --filter @workspace/creator-os run build",
-  "outputDirectory": "artifacts/creator-os/dist",
-  "installCommand": "pnpm install",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm --filter @workspace/creator-os run build",
+  "outputDirectory": "dist",
   "framework": null,
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
@@ -16,6 +16,7 @@
     }
   ],
   "env": {
+    "VITE_API_URL": "@vite_api_url",
     "VITE_SUPABASE_URL": "@vite_supabase_url",
     "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key",
     "VITE_PAYSTACK_PUBLIC_KEY": "@vite_paystack_public_key",
