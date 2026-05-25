@@ -1,6 +1,7 @@
 {
   "version": 2,
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm --filter @workspace/db run push-force",
   "builds": [
     {
       "src": "api/index.ts",
