@@ -16,12 +16,12 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "@vite_api_url",
-    "VITE_SUPABASE_URL": "@vite_supabase_url",
-    "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key",
-    "VITE_PAYSTACK_PUBLIC_KEY": "@vite_paystack_public_key",
-    "VITE_ADSENSE_PUBLISHER_ID": "@vite_adsense_publisher_id",
-    "VITE_ADSENSE_SLOT_BANNER": "@vite_adsense_slot_banner",
-    "VITE_ADSENSE_SLOT_MODAL": "@vite_adsense_slot_modal"
+    "VITE_API_URL": "vite_api_url",
+    "VITE_SUPABASE_URL": "vite_supabase_url",
+    "VITE_SUPABASE_ANON_KEY": "vite_supabase_anon_key",
+    "VITE_PAYSTACK_PUBLIC_KEY": "vite_paystack_public_key",
+    "VITE_ADSENSE_PUBLISHER_ID": "vite_adsense_publisher_id",
+    "VITE_ADSENSE_SLOT_BANNER": "vite_adsense_slot_banner",
+    "VITE_ADSENSE_SLOT_MODAL": "vite_adsense_slot_modal"
   }
 }
