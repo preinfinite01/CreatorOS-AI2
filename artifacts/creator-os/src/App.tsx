@@ -208,8 +208,8 @@ function App() {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user?.id) {
-        // Load profile from API (triggers daily credit refresh if due)
-        loadProfile(session.user.id);
+        // Pass email so loadProfile can auto-create the profile if it doesn't exist yet
+        loadProfile(session.user.id, session.user.email ?? undefined);
         loadSubscription(session.user.id);
       }
     });
@@ -218,7 +218,7 @@ function App() {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user?.id) {
-        loadProfile(session.user.id);
+        loadProfile(session.user.id, session.user.email ?? undefined);
         loadSubscription(session.user.id);
       }
     });

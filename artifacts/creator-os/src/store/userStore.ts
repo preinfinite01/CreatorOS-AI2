@@ -26,7 +26,7 @@ interface UserState extends UserData {
     level?: number
     streak?: number
   }) => void
-  loadProfile: (userId: string) => Promise<void>
+  loadProfile: (userId: string, email?: string) => Promise<void>
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
@@ -48,10 +48,6 @@ export const useUserStore = create<UserState>((set, get) => ({
       return { xp: newXp, level: newLevel }
     }),
 
-  /**
-   * Deduct credits server-side and update local state.
-   * Pro plan always returns true (unlimited).
-   */
   deductCredits: async (userId: string, amount: number) => {
     const state = get()
     if (state.plan === 'pro') return true
@@ -92,18 +88,44 @@ export const useUserStore = create<UserState>((set, get) => ({
     })),
 
   /**
-   * Fetch the profile from the API server (which also applies daily credit refresh).
-   * Call this on every app load after the user is authenticated.
+   * Fetch the profile from the API (which also applies the daily credit refresh).
+   * If the profile doesn't exist yet (404), auto-create it so new accounts always
+   * receive their 70 starting credits immediately — no manual step needed.
    */
-  loadProfile: async (userId: string) => {
+  loadProfile: async (userId: string, email?: string) => {
     set({ isLoadingProfile: true })
     try {
       const res = await apiFetch(`/api/profile/${userId}`)
-      if (!res.ok) {
-        // Profile might not exist yet (first login) — try creating it
+
+      if (res.status === 404) {
+        // Profile missing — create it now with the user's email
+        const emailToUse = email ?? `${userId}@unknown.local`
+        try {
+          const createRes = await apiFetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, email: emailToUse }),
+          })
+          if (createRes.ok) {
+            const createJson = (await createRes.json()) as {
+              data?: { profile?: { plan?: string; credits?: number; xp?: number; level?: number; streak?: number } }
+            }
+            if (createJson.data?.profile) {
+              get().syncFromProfile(createJson.data.profile)
+            }
+          }
+        } catch {
+          // profile creation failed — UI keeps default state
+        }
         set({ isLoadingProfile: false })
         return
       }
+
+      if (!res.ok) {
+        set({ isLoadingProfile: false })
+        return
+      }
+
       const json = (await res.json()) as {
         data?: {
           profile?: {
