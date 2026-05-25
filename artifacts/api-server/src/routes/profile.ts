@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db, profilesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { applyDailyCredits, ensureProfile, deductCredits } from "../services/credits.js";
+import { applyDailyCredits, ensureProfile, deductCredits, DAILY_GRANT, MONTHLY_CAP } from "../services/credits.js";
 
 const router = Router();
 
@@ -174,8 +174,8 @@ router.get("/profile/:userId/credit-status", async (req, res) => {
         nextRefreshMs:     msUntilMidnight,
         nextRefreshAt:     tomorrow.toISOString(),
         monthlyGranted,
-        monthlyRemaining:  Math.max(0, 700 - monthlyGranted),
-        monthlyCapReached: monthlyGranted >= 700,
+        monthlyRemaining:  Math.max(0, MONTHLY_CAP - monthlyGranted),
+        monthlyCapReached: monthlyGranted >= MONTHLY_CAP,
       },
     });
   } catch (err) {

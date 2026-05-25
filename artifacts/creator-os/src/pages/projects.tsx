@@ -48,9 +48,9 @@ export default function Projects() {
     }
   };
 
-  const filteredProjects = projects.filter(p => 
-    p.title.toLowerCase().includes(search.toLowerCase()) || 
-    p.type.toLowerCase().includes(search.toLowerCase())
+  const filteredProjects = projects.filter(p =>
+    (p.title ?? "").toLowerCase().includes(search.toLowerCase()) ||
+    (p.type ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
   const getTypeColor = (type: string) => {

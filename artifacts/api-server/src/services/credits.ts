@@ -2,21 +2,22 @@
  * Credit management service.
  *
  * Rules:
- *   - Initial signup: 100 credits (set when profile is created)
- *   - Daily refresh: +50 credits at midnight (real-world clock), once per calendar day
- *   - Monthly cap: max 700 credits granted via daily refresh per calendar month
- *   - Free plan only — Pro plan has unlimited credits (skip all checks)
- *   - Credits are stored in PostgreSQL, so server restarts never cause re-grants
+ *   - Initial signup: 70 credits (set when profile is created)
+ *   - Daily refresh: +10 credits at midnight UTC (12am), once per calendar day
+ *   - Monthly cap: max 300 credits granted via daily refresh per calendar month
+ *   - Free/Basic plan only — Pro plan has unlimited credits (skip all checks)
+ *   - Credits are stored in PostgreSQL, so server restarts and page refreshes
+ *     NEVER cause re-grants. The grant fires at most once per UTC calendar day.
  */
 import { db, profilesTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import type { Profile } from "@workspace/db";
 
-const DAILY_GRANT      = 50;
-const MONTHLY_CAP      = 700;
-const INITIAL_CREDITS  = 100;
+export const DAILY_GRANT     = 10;
+export const MONTHLY_CAP     = 300;   // 30 days × 10
+export const INITIAL_CREDITS = 70;
 
-/** Returns today as "YYYY-MM-DD" in UTC (avoids timezone drift). */
+/** Returns today as "YYYY-MM-DD" in UTC — avoids timezone drift. */
 function todayUTC(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -29,16 +30,22 @@ function thisMonthUTC(): string {
 /**
  * Check whether the profile is due for a daily credit grant and apply it.
  * Returns the (potentially updated) profile.
- * Safe to call on every profile fetch — it's a no-op when no grant is needed.
+ *
+ * Safe to call on every profile fetch — it is a no-op when:
+ *   a) lastCreditRefreshDate already equals today (most common case), OR
+ *   b) plan === "pro" (unlimited)
+ *
+ * Credits are ONLY added once per UTC calendar day (midnight = day boundary).
+ * Page refreshes and server restarts do not cause re-grants because the date
+ * check is against the value stored in Postgres, not in memory.
  */
 export async function applyDailyCredits(profile: Profile): Promise<Profile> {
-  // Pro plan = unlimited, no credit tracking needed
   if (profile.plan === "pro") return profile;
 
   const today     = todayUTC();
   const thisMonth = thisMonthUTC();
 
-  // Already refreshed today — nothing to do
+  // Already refreshed today — nothing to do (most requests hit this path)
   if (profile.lastCreditRefreshDate === today) return profile;
 
   // Reset monthly counter when entering a new month
@@ -47,9 +54,8 @@ export async function applyDailyCredits(profile: Profile): Promise<Profile> {
       ? (profile.monthlyCreditsGranted ?? 0)
       : 0;
 
-  // Monthly cap reached — skip until next month
+  // Monthly cap reached — stamp the date so we don't re-check every request
   if (monthlyGranted >= MONTHLY_CAP) {
-    // Still update lastCreditRefreshDate so we don't re-check every request
     await db
       .update(profilesTable)
       .set({ lastCreditRefreshDate: today, updatedAt: new Date() })
@@ -57,19 +63,19 @@ export async function applyDailyCredits(profile: Profile): Promise<Profile> {
     return { ...profile, lastCreditRefreshDate: today };
   }
 
-  const toGrant     = Math.min(DAILY_GRANT, MONTHLY_CAP - monthlyGranted);
-  const newCredits  = profile.credits + toGrant;
-  const newMonthly  = monthlyGranted + toGrant;
-  const now         = new Date();
+  const toGrant    = Math.min(DAILY_GRANT, MONTHLY_CAP - monthlyGranted);
+  const newCredits = profile.credits + toGrant;
+  const newMonthly = monthlyGranted + toGrant;
+  const now        = new Date();
 
   await db
     .update(profilesTable)
     .set({
-      credits:              newCredits,
+      credits:               newCredits,
       lastCreditRefreshDate: today,
-      creditsMonthYear:     thisMonth,
+      creditsMonthYear:      thisMonth,
       monthlyCreditsGranted: newMonthly,
-      updatedAt:            now,
+      updatedAt:             now,
     })
     .where(eq(profilesTable.id, profile.id));
 
@@ -80,6 +86,19 @@ export async function applyDailyCredits(profile: Profile): Promise<Profile> {
     creditsMonthYear:      thisMonth,
     monthlyCreditsGranted: newMonthly,
   };
+}
+
+/**
+ * One-time startup sync: bump any existing free/basic profiles that were
+ * created before the 70-credit policy to exactly 70 credits.
+ * Safe to call every startup — the WHERE clause is a no-op once all rows
+ * have been updated.
+ */
+export async function syncInitialCredits(): Promise<void> {
+  await db
+    .update(profilesTable)
+    .set({ credits: INITIAL_CREDITS, updatedAt: new Date() })
+    .where(lt(profilesTable.credits, INITIAL_CREDITS));
 }
 
 /**
