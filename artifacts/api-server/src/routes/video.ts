@@ -1,45 +1,58 @@
 import { Router } from "express";
 import { aiGenerationLimiter } from "../middleware/rateLimit.js";
+import { HUGGINGFACE_API_KEY } from "../lib/env.js";
 
 const router = Router();
+
+const HF_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell";
+
+async function generateFrame(prompt: string): Promise<string> {
+  const res = await fetch(HF_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${HUGGINGFACE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ inputs: prompt }),
+    signal: AbortSignal.timeout(60_000),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`FLUX error ${res.status}: ${text}`);
+  }
+
+  const buffer = Buffer.from(await res.arrayBuffer());
+  return `data:image/jpeg;base64,${buffer.toString("base64")}`;
+}
 
 router.post("/video/generate", aiGenerationLimiter, async (req, res) => {
   const { prompt, style = "cinematic" } = req.body as { prompt?: string; style?: string };
   if (!prompt) { res.status(400).json({ error: "prompt required" }); return; }
 
-  const HF_KEY = process.env["HUGGINGFACE_API_KEY"];
-  if (!HF_KEY) { res.status(401).json({ error: "HuggingFace API key not configured." }); return; }
+  if (!HUGGINGFACE_API_KEY) {
+    res.status(401).json({ error: "HuggingFace API key not configured." });
+    return;
+  }
 
-  const styledPrompt = `${prompt}, ${style} style, high quality, smooth motion`;
+  const framePrompts = [
+    `${prompt}, ${style} style, establishing wide shot, ultra high quality, 8k`,
+    `${prompt}, ${style} style, mid shot with dramatic lighting, cinematic depth of field`,
+    `${prompt}, ${style} style, close-up detail shot, vivid colors, professional photography`,
+    `${prompt}, ${style} style, atmospheric final frame, golden hour lighting, epic composition`,
+  ];
 
   try {
-    const hfRes = await fetch(
-      "https://api-inference.huggingface.co/models/damo-vilab/text-to-video-ms-1.7b",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${HF_KEY}`,
-          "Content-Type": "application/json",
-          "x-wait-for-model": "true",
-        },
-        body: JSON.stringify({ inputs: styledPrompt }),
-        signal: AbortSignal.timeout(120_000),
-      }
-    );
+    const frames = await Promise.all(framePrompts.map(generateFrame));
 
-    if (!hfRes.ok) {
-      const errText = await hfRes.text();
-      req.log.error({ status: hfRes.status, errText }, "HuggingFace video error");
-      res.status(502).json({ error: "Video generation failed. Model may be loading — try again in 60s." });
-      return;
-    }
-
-    const videoBuffer = await hfRes.arrayBuffer();
-    res.set("Content-Type", "video/mp4");
-    res.set("Content-Disposition", `attachment; filename="creatoros-${Date.now()}.mp4"`);
-    res.send(Buffer.from(videoBuffer));
+    res.json({
+      frames,
+      frameCount: frames.length,
+      prompt,
+      style,
+    });
   } catch (err) {
-    req.log.error({ err }, "Error generating video");
+    req.log.error({ err }, "Error generating video frames");
     res.status(500).json({ error: "Failed to generate video. Please try again." });
   }
 });
